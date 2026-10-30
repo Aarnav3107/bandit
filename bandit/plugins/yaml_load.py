@@ -41,9 +41,12 @@ on ``yaml.load`` and yaml.safe_load
     CWE information added
 
 """
+
 import bandit
 from bandit.core import issue
 from bandit.core import test_properties as test
+
+SAFE_LOADERS = ["SafeLoader", "CSafeLoader", "BaseLoader", "CBaseLoader"]
 
 
 @test.test_id("B506")
@@ -60,10 +63,8 @@ def yaml_load(context):
         [
             "yaml" in qualname_list,
             func == "load",
-            not context.check_call_arg_value("Loader", "SafeLoader"),
-            not context.check_call_arg_value("Loader", "CSafeLoader"),
-            not context.get_call_arg_at_position(1) == "SafeLoader",
-            not context.get_call_arg_at_position(1) == "CSafeLoader",
+            not context.check_call_arg_value("Loader", SAFE_LOADERS),
+            context.get_call_arg_at_position(1) not in SAFE_LOADERS,
         ]
     ):
         return bandit.Issue(
